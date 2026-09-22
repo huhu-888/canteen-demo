@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>个人中心 - 食光盲盒</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<style>
+        ::-webkit-scrollbar { display: none; }
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
+</head>
+<body class="bg-gray-100 flex justify-center items-center min-h-screen text-[#4A3728]">
+<div class="w-[375px] h-[812px] bg-[#FFF8F0] shadow-2xl rounded-[40px] overflow-hidden border-[8px] border-[#4A3728] relative flex flex-col">
+<!-- 顶部状态栏 -->
+<div class="h-6 w-full flex justify-between items-center px-8 pt-4 text-xs font-bold z-50 text-white">
+<span>09:41</span>
+<div class="flex gap-1">
+<iconify-icon icon="mdi:signal"></iconify-icon>
+<iconify-icon icon="mdi:wifi"></iconify-icon>
+<iconify-icon icon="mdi:battery"></iconify-icon>
+</div>
+</div>
+<!-- 页面内容区域 -->
+<main class="flex-1 overflow-y-auto no-scrollbar pb-24">
+<div class="bg-[#FF6B35] p-8 pt-12 rounded-b-[40px] text-white">
+<div class="flex items-center gap-4 mb-6">
+<div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-3xl border-4 border-orange-300">
+                        👨‍🚀
+                    </div>
+<div>
+<h2 class="text-xl font-black">食光探险家</h2>
+<p class="text-xs opacity-80">Lv.3 美食达人</p>
+</div>
+</div>
+<div class="bg-white/20 backdrop-blur-md rounded-2xl p-4">
+<div class="flex justify-between items-center mb-2 text-sm font-bold">
+<span>当前积分</span>
+<span id="me-points">1,250</span>
+</div>
+<div class="w-full h-2 bg-white/30 rounded-full overflow-hidden">
+<div class="w-[65%] h-full bg-white rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="p-5 space-y-6">
+<!-- 成就勋章 -->
+<div>
+<h3 class="font-black mb-3">成就勋章</h3>
+<div class="flex justify-between">
+<div class="flex flex-col items-center gap-1">
+<div class="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center text-2xl">🌱</div>
+<span class="text-[10px] text-gray-500">初来乍到</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center text-2xl">🚶</div>
+<span class="text-[10px] text-gray-500">排队达人</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center text-2xl">🏹</div>
+<span class="text-[10px] text-gray-500">美食猎人</span>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-30">
+<div class="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center text-2xl">👑</div>
+<span class="text-[10px] text-gray-500">食神降临</span>
+</div>
+</div>
+</div>
+<!-- 设置列表 -->
+<div class="bg-white rounded-2xl overflow-hidden shadow-sm">
+<div class="p-4 flex justify-between items-center border-b border-gray-50 cursor-pointer active:bg-gray-50" onclick="document.getElementById('modal-diet').classList.remove('hidden')">
+<div class="flex items-center gap-3">
+<iconify-icon class="text-orange-400" icon="mdi:silverware-variant"></iconify-icon>
+<span class="text-sm font-bold">口味偏好设置</span>
+</div>
+<iconify-icon class="text-gray-300" icon="mdi:chevron-right"></iconify-icon>
+</div>
+<div class="p-4 flex justify-between items-center border-b border-gray-50">
+<div class="flex items-center gap-3">
+<iconify-icon class="text-blue-400" icon="mdi:bell-outline"></iconify-icon>
+<span class="text-sm font-bold">通知设置</span>
+</div>
+<iconify-icon class="text-gray-300" icon="mdi:chevron-right"></iconify-icon>
+</div>
+<div class="p-4 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<iconify-icon class="text-gray-400" icon="mdi:cog-outline"></iconify-icon>
+<span class="text-sm font-bold">通用设置</span>
+</div>
+<iconify-icon class="text-gray-300" icon="mdi:chevron-right"></iconify-icon>
+</div>
+</div>
+</div>
+</main>
+<!-- 底部导航栏 -->
+<nav class="absolute bottom-0 w-full bg-white/90 backdrop-blur-lg border-t border-gray-100 px-6 py-3 pb-8 flex justify-between items-center z-50 safe-bottom">
+<a class="flex flex-col items-center gap-1 text-gray-400" href="home.html">
+<iconify-icon class="text-2xl" icon="mdi:home-variant"></iconify-icon>
+<span class="text-[10px] font-bold">首页</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="canteen.html">
+<iconify-icon class="text-2xl" icon="mdi:silverware-fork-knife"></iconify-icon>
+<span class="text-[10px] font-bold">食堂</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="fav.html">
+<iconify-icon class="text-2xl" icon="mdi:heart"></iconify-icon>
+<span class="text-[10px] font-bold">收藏</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#FF6B35]" href="me.html">
+<iconify-icon class="text-2xl" icon="mdi:account"></iconify-icon>
+<span class="text-[10px] font-bold">我的</span>
+</a>
+</nav>
+<!-- 弹窗：口味偏好 -->
+<div class="hidden fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-6" id="modal-diet">
+<div class="w-full bg-white rounded-[32px] p-8 space-y-6">
+<h3 class="text-xl font-black text-center">口味偏好设置</h3>
+<div class="grid grid-cols-2 gap-3">
+<button class="border-2 border-orange-100 bg-orange-50 text-[#FF6B35] rounded-xl py-3 text-sm font-bold">不吃辣</button>
+<button class="border-2 border-gray-100 rounded-xl py-3 text-sm font-bold text-gray-500">不吃香菜</button>
+<button class="border-2 border-gray-100 rounded-xl py-3 text-sm font-bold text-gray-500">清真</button>
+<button class="border-2 border-gray-100 rounded-xl py-3 text-sm font-bold text-gray-500">素食</button>
+</div>
+<button class="w-full bg-[#FF6B35] text-white py-4 rounded-full font-black" onclick="document.getElementById('modal-diet').classList.add('hidden')">保存设置</button>
+</div>
+</div>
+</div>
+<script>
+        window.onload = () => {
+            const points = localStorage.getItem('points') || 1250;
+            document.getElementById('me-points').innerText = parseInt(points).toLocaleString();
+        };
+    </script>
+</body>
+</html>

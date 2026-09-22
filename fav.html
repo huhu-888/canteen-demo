@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>我的收藏 - 食光盲盒</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<style>
+        ::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
+</head>
+<body class="bg-gray-100 flex justify-center items-center min-h-screen text-[#4A3728]">
+<div class="w-[375px] h-[812px] bg-[#FFF8F0] shadow-2xl rounded-[40px] overflow-hidden border-[8px] border-[#4A3728] relative flex flex-col">
+<!-- 顶部状态栏 -->
+<div class="h-6 w-full flex justify-between items-center px-8 pt-4 text-xs font-bold z-50">
+<span>09:41</span>
+<div class="flex gap-1">
+<iconify-icon icon="mdi:signal"></iconify-icon>
+<iconify-icon icon="mdi:wifi"></iconify-icon>
+<iconify-icon icon="mdi:battery"></iconify-icon>
+</div>
+</div>
+<!-- 顶部导航栏 -->
+<header class="px-5 py-4 flex justify-between items-center bg-[#FFF8F0]/80 backdrop-blur-md z-40">
+<h1 class="text-2xl font-black text-[#FF6B35]">我的收藏 ❤️</h1>
+<div class="flex gap-4">
+<iconify-icon class="text-2xl" icon="mdi:magnify"></iconify-icon>
+</div>
+</header>
+<!-- 页面内容区域 -->
+<main class="flex-1 overflow-y-auto no-scrollbar p-5 pb-24">
+<div class="space-y-4" id="fav-list">
+<!-- 由JS动态渲染 -->
+</div>
+</main>
+<!-- 底部导航栏 -->
+<nav class="absolute bottom-0 w-full bg-white/90 backdrop-blur-lg border-t border-gray-100 px-6 py-3 pb-8 flex justify-between items-center z-50 safe-bottom">
+<a class="flex flex-col items-center gap-1 text-gray-400" href="home.html">
+<iconify-icon class="text-2xl" icon="mdi:home-variant"></iconify-icon>
+<span class="text-[10px] font-bold">首页</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="canteen.html">
+<iconify-icon class="text-2xl" icon="mdi:silverware-fork-knife"></iconify-icon>
+<span class="text-[10px] font-bold">食堂</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#FF6B35]" href="fav.html">
+<iconify-icon class="text-2xl" icon="mdi:heart"></iconify-icon>
+<span class="text-[10px] font-bold">收藏</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="me.html">
+<iconify-icon class="text-2xl" icon="mdi:account"></iconify-icon>
+<span class="text-[10px] font-bold">我的</span>
+</a>
+</nav>
+</div>
+<script>
+        function renderFavs() {
+            const list = document.getElementById('fav-list');
+            const favorites = JSON.parse(localStorage.getItem('favs')) || [];
+            
+            if(favorites.length === 0) {
+                list.innerHTML = `<div class="flex flex-col items-center justify-center py-20 text-gray-400">
+                    <iconify-icon icon="mdi:heart-broken" class="text-6xl mb-2 opacity-20"></iconify-icon>
+                    <p class="text-[#4A3728] font-bold mb-2">还没有收藏菜品哦</p>
+                    <p class="text-xs text-gray-400 mb-4">去首页摇一摇吧～</p>
+                    <div class="text-6xl mb-4">🎲</div>
+                    <a href="home.html" class="mt-2 bg-[#FF6B35] text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-md inline-block">去首页看看</a>
+                </div>`;
+                return;
+            }
+            list.innerHTML = favorites.map((f, idx) => `
+                <div class="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 border border-gray-50 animate-fade-in">
+                    <div class="text-4xl w-12 text-center">${f.emoji || '🍱'}</div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-bold text-[#4A3728]">${f.name}</h4>
+                        <p class="text-xs text-gray-400">${f.window || ''} · ${f.time || '刚刚收藏'}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="home.html" class="bg-[#FF6B35] text-white px-3 py-1.5 rounded-lg text-[10px] font-bold whitespace-nowrap">再来一份</a>
+                        <button onclick="removeFavorite(${idx})" class="text-red-400 px-2 py-1.5 rounded-lg text-sm hover:bg-red-50 transition-colors">❤️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function removeFavorite(index) {
+            let favorites = JSON.parse(localStorage.getItem('favs')) || [];
+            favorites.splice(index, 1);
+            localStorage.setItem('favs', JSON.stringify(favorites));
+            renderFavs();
+        }
+
+        // 添加淡入动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+        `;
+        document.head.appendChild(style);
+
+        window.onload = renderFavs;
+    </script>
+</body>
+</html>

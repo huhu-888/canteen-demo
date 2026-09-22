@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>食堂大厅 - 食光盲盒</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<style>
+        ::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
+</head>
+<body class="bg-gray-100 flex justify-center items-center min-h-screen text-[#4A3728]">
+<div class="w-[375px] h-[812px] bg-[#FFF8F0] shadow-2xl rounded-[40px] overflow-hidden border-[8px] border-[#4A3728] relative flex flex-col">
+<!-- 顶部状态栏 -->
+<div class="h-6 w-full flex justify-between items-center px-8 pt-4 text-xs font-bold z-50">
+<span>09:41</span>
+<div class="flex gap-1">
+<iconify-icon icon="mdi:signal"></iconify-icon>
+<iconify-icon icon="mdi:wifi"></iconify-icon>
+<iconify-icon icon="mdi:battery"></iconify-icon>
+</div>
+</div>
+<!-- 顶部导航栏 -->
+<header class="px-5 py-4 flex justify-between items-center bg-[#FFF8F0]/80 backdrop-blur-md z-40">
+<h1 class="text-2xl font-black text-[#FF6B35]">食堂大厅</h1>
+<div class="flex gap-4">
+<iconify-icon class="text-2xl" icon="mdi:magnify"></iconify-icon>
+<iconify-icon class="text-2xl" icon="mdi:message-outline"></iconify-icon>
+</div>
+</header>
+<!-- 页面内容区域 -->
+<main class="flex-1 overflow-y-auto no-scrollbar p-5 space-y-6 pb-24">
+<!-- Tab切换 -->
+<div class="flex bg-white p-1 rounded-xl shadow-sm">
+<button class="canteen-tab flex-1 py-2 text-sm font-bold rounded-lg bg-[#FF6B35] text-white transition-all" onclick="switchCanteen(0)">一食堂</button>
+<button class="canteen-tab flex-1 py-2 text-sm font-bold text-gray-500 transition-all" onclick="switchCanteen(1)">二食堂</button>
+<button class="canteen-tab flex-1 py-2 text-sm font-bold text-gray-500 transition-all" onclick="switchCanteen(2)">美食广场</button>
+</div>
+<!-- 热度榜 -->
+<div class="bg-white border-2 border-[#FF6B35] rounded-2xl p-4 flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-transform" onclick="document.getElementById('modal-hotlist').classList.remove('hidden')">
+<div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-2xl">🏆</div>
+<div class="flex-1">
+<p class="font-black">热度榜 TOP5</p>
+<p class="text-xs text-gray-400">看看大家都在排什么？</p>
+</div>
+<iconify-icon class="text-[#FF6B35] text-xl animate-pulse" icon="mdi:fire"></iconify-icon>
+</div>
+<!-- 窗口列表 -->
+<div class="space-y-4" id="window-list">
+<!-- 动态渲染 -->
+</div>
+</main>
+<!-- 底部导航栏 -->
+<nav class="absolute bottom-0 w-full bg-white/90 backdrop-blur-lg border-t border-gray-100 px-6 py-3 pb-8 flex justify-between items-center z-50 safe-bottom">
+<a class="flex flex-col items-center gap-1 text-gray-400" href="home.html">
+<iconify-icon class="text-2xl" icon="mdi:home-variant"></iconify-icon>
+<span class="text-[10px] font-bold">首页</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#FF6B35]" href="canteen.html">
+<iconify-icon class="text-2xl" icon="mdi:silverware-fork-knife"></iconify-icon>
+<span class="text-[10px] font-bold">食堂</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="fav.html">
+<iconify-icon class="text-2xl" icon="mdi:heart"></iconify-icon>
+<span class="text-[10px] font-bold">收藏</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="me.html">
+<iconify-icon class="text-2xl" icon="mdi:account"></iconify-icon>
+<span class="text-[10px] font-bold">我的</span>
+</a>
+</nav>
+<!-- 弹窗：热度榜 -->
+<div class="hidden fixed inset-0 bg-black/50 z-[100] flex items-end" id="modal-hotlist">
+<div class="w-full bg-white rounded-t-[40px] p-8 space-y-6 animate-slide-up">
+<div class="flex justify-between items-center">
+<h3 class="text-xl font-black">🏆 今日热度榜</h3>
+<button class="text-gray-400 text-2xl" onclick="document.getElementById('modal-hotlist').classList.add('hidden')">×</button>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-4">
+<span class="w-6 h-6 bg-[#FF6B35] text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+<span class="flex-1 font-bold">麻辣香锅 (一食堂)</span>
+<span class="text-[#FF6B35] text-xs">🔥 9.8k</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="w-6 h-6 bg-orange-400 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+<span class="flex-1 font-bold">麻辣烫 (美食广场)</span>
+<span class="text-[#FF6B35] text-xs">🔥 8.5k</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="w-6 h-6 bg-orange-300 text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
+<span class="flex-1 font-bold">黄焖鸡米饭 (一食堂)</span>
+<span class="text-[#FF6B35] text-xs">🔥 7.2k</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 提示：积分反馈 -->
+<div class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/80 text-white px-6 py-3 rounded-full font-bold z-[200]" id="toast-points">
+            +1 积分 🌟
+        </div>
+</div>
+<script>
+        const canteenWindows = {
+            0: [
+                {name: "香锅窗口", queue: 8, time: 10},
+                {name: "黄焖鸡窗口", queue: 5, time: 6},
+                {name: "拌饭窗口", queue: 3, time: 4},
+                {name: "特色窗口", queue: 12, time: 15}
+            ],
+            1: [
+                {name: "牛肉饭窗口", queue: 6, time: 8},
+                {name: "鱼鲜窗口", queue: 4, time: 5},
+                {name: "粉面窗口", queue: 10, time: 12}
+            ],
+            2: [
+                {name: "面食窗口", queue: 7, time: 9},
+                {name: "麻辣烫窗口", queue: 15, time: 18},
+                {name: "煎饼窗口", queue: 2, time: 3}
+            ]
+        };
+
+        let currentCanteen = 0;
+
+        function switchCanteen(index) {
+            currentCanteen = index;
+            const tabs = document.querySelectorAll('.canteen-tab');
+            tabs.forEach((t, i) => {
+                if(i === index) {
+                    t.classList.add('bg-[#FF6B35]', 'text-white');
+                    t.classList.remove('text-gray-500');
+                } else {
+                    t.classList.remove('bg-[#FF6B35]', 'text-white');
+                    t.classList.add('text-gray-500');
+                }
+            });
+            renderWindows();
+        }
+
+        function renderWindows() {
+            const list = document.getElementById('window-list');
+            const data = canteenWindows[currentCanteen];
+            list.innerHTML = data.map((win, i) => `
+                <div class="bg-white rounded-2xl p-4 shadow-sm flex justify-between items-center border border-gray-50">
+                    <div>
+                        <h4 class="font-bold">${win.name}</h4>
+                        <div class="flex gap-3 mt-1">
+                            <span class="text-[10px] text-gray-400">排队: <b class="text-[#FF6B35]">${win.queue}人</b></span>
+                            <span class="text-[10px] text-gray-400">预计: <b class="text-[#4A3728]">${win.time}分钟</b></span>
+                        </div>
+                    </div>
+                    <button onclick="reportQueue()" class="bg-orange-50 text-[#FF6B35] px-4 py-2 rounded-xl text-xs font-black active:bg-[#FF6B35] active:text-white transition-colors">
+                        我在排队
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function reportQueue() {
+            const count = prompt("当前排队人数？(1-30)", "5");
+            if(count) {
+                const toast = document.getElementById('toast-points');
+                toast.classList.remove('hidden');
+                let points = parseInt(localStorage.getItem('points')) || 1250;
+                localStorage.setItem('points', points + 1);
+                setTimeout(() => toast.classList.add('hidden'), 1500);
+            }
+        }
+
+        window.onload = renderWindows;
+    </script>
+</body>
+</html>

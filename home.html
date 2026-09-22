@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>食光盲盒 - 大学生午餐解决专家</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<style>
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            50% { transform: rotate(-10deg); }
+            75% { transform: rotate(5deg); }
+            100% { transform: rotate(0deg); }
+        }
+        .animate-shake { animation: shake 0.5s ease-in-out infinite; }
+        
+        @keyframes box-jump {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+        .animate-box { animation: box-jump 0.6s ease-in-out infinite; }
+
+        .card-swipe-right { transform: translateX(500px) rotate(30deg); opacity: 0; transition: all 0.5s ease-out; }
+        .card-swipe-left { transform: translateX(-500px) rotate(-30deg); opacity: 0; transition: all 0.5s ease-out; }
+        
+        ::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
+</head>
+<body class="bg-gray-100 flex justify-center items-center min-h-screen">
+<!-- 手机外壳容器 -->
+<div class="w-[375px] h-[812px] bg-[#FFF8F0] shadow-2xl rounded-[40px] overflow-hidden border-[8px] border-[#4A3728] relative flex flex-col">
+<!-- 顶部状态栏 -->
+<div class="h-6 w-full flex justify-between items-center px-8 pt-4 text-[#4A3728] text-xs font-bold z-50">
+<span>09:41</span>
+<div class="flex gap-1">
+<iconify-icon icon="mdi:signal"></iconify-icon>
+<iconify-icon icon="mdi:wifi"></iconify-icon>
+<iconify-icon icon="mdi:battery"></iconify-icon>
+</div>
+</div>
+<!-- 顶部导航栏 -->
+<header class="px-5 py-4 flex justify-between items-center bg-[#FFF8F0]/80 backdrop-blur-md z-40" id="app-header">
+<h1 class="text-2xl font-black text-[#FF6B35]">食光盲盒</h1>
+<div class="flex gap-4 text-[#4A3728]">
+<iconify-icon class="text-2xl" icon="mdi:magnify"></iconify-icon>
+<iconify-icon class="text-2xl" icon="mdi:message-outline"></iconify-icon>
+</div>
+</header>
+<!-- 页面内容区域 -->
+<main class="flex-1 overflow-y-auto no-scrollbar pb-24" id="content-area">
+<!-- 首页 (Default) -->
+<section class="p-5 space-y-8" id="page-home">
+<!-- 摇一摇核心区 -->
+<div class="flex flex-col items-center justify-center py-10 bg-white rounded-3xl shadow-sm border border-orange-100">
+<div class="w-32 h-32 bg-[#FF6B35] rounded-full flex items-center justify-center text-5xl shadow-lg shadow-orange-200 cursor-pointer active:scale-95 transition-transform" id="shake-btn" onclick="triggerShake()">
+                        🎲
+                    </div>
+<p class="mt-4 text-[#4A3728] font-bold">摇一摇，今天吃什么？</p>
+<!-- 推荐结果卡片 (初始隐藏) -->
+<div class="hidden mt-6 w-full px-6" id="shake-result">
+<div class="bg-orange-50 border-2 border-dashed border-[#FF6B35] rounded-2xl p-4 text-center">
+<div class="text-4xl mb-2" id="res-emoji">🍱</div>
+<h3 class="text-xl font-black text-[#4A3728]" id="res-name">加载中...</h3>
+<p class="text-sm text-gray-500 mb-2" id="res-window">窗口加载中</p>
+<div class="flex justify-center gap-2">
+<span class="bg-white px-2 py-1 rounded text-xs font-bold text-[#FF6B35]" id="res-price">￥0</span>
+<span class="bg-orange-200 px-2 py-1 rounded text-xs font-bold text-orange-700" id="res-tag">🔥 低卡</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 热门推荐卡片 -->
+<div>
+<div class="flex justify-between items-center mb-4">
+<h2 class="text-lg font-black text-[#4A3728]">🔥 今日热门</h2>
+<span class="text-xs text-gray-400" id="swipe-hint">左右滑动切换</span>
+</div>
+<div class="relative h-[240px] w-full overflow-hidden" id="swipe-container">
+<!-- 滑动卡片容器 -->
+<div class="flex transition-none absolute inset-0" id="swipe-track" style="touch-action: none;">
+<!-- 3张卡片将由JS动态渲染 -->
+</div>
+</div>
+<!-- 进度指示器 -->
+<div class="flex justify-center gap-1.5 mt-4" id="indicator-dots">
+<div class="w-4 h-1.5 bg-[#FF6B35] rounded-full transition-all"></div>
+<div class="w-1.5 h-1.5 bg-gray-300 rounded-full transition-all"></div>
+<div class="w-1.5 h-1.5 bg-gray-300 rounded-full transition-all"></div>
+</div>
+</div>
+<!-- 每日开奖入口 -->
+<div class="bg-gradient-to-r from-[#FF6B35] to-[#FF9F1C] rounded-2xl p-4 flex items-center justify-between text-white shadow-lg shadow-orange-100 cursor-pointer" onclick="switchPage('blindbox')">
+<div class="flex items-center gap-3">
+<div class="text-3xl">🎁</div>
+<div>
+<p class="font-bold">每日盲盒开奖</p>
+<p class="text-xs opacity-80">100%中奖，赢取免单券</p>
+</div>
+</div>
+<iconify-icon class="text-2xl" icon="mdi:chevron-right"></iconify-icon>
+</div>
+</section>
+<!-- 食堂页 -->
+<section class="hidden p-5 space-y-6" id="page-canteen">
+<!-- Tab切换 -->
+<div class="flex bg-white p-1 rounded-xl shadow-sm">
+<button class="canteen-tab flex-1 py-2 text-sm font-bold rounded-lg bg-[#FF6B35] text-white" onclick="switchCanteen(0)">一食堂</button>
+<button class="canteen-tab flex-1 py-2 text-sm font-bold text-gray-500" onclick="switchCanteen(1)">二食堂</button>
+<button class="canteen-tab flex-1 py-2 text-sm font-bold text-gray-500" onclick="switchCanteen(2)">美食广场</button>
+</div>
+<!-- 热度榜 -->
+<div class="bg-white border-2 border-[#FF6B35] rounded-2xl p-4 flex items-center gap-4 cursor-pointer" onclick="showHotList()">
+<div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-2xl">🏆</div>
+<div class="flex-1">
+<p class="font-black text-[#4A3728]">热度榜 TOP5</p>
+<p class="text-xs text-gray-400">看看大家都在排什么？</p>
+</div>
+<iconify-icon class="text-[#FF6B35] text-xl animate-pulse" icon="mdi:fire"></iconify-icon>
+</div>
+<!-- 窗口列表 -->
+<div class="space-y-4" id="window-list">
+<!-- 动态渲染 -->
+</div>
+</section>
+<!-- 收藏页 -->
+<section class="hidden p-5 space-y-4" id="page-fav">
+<h2 class="text-xl font-black text-[#4A3728] flex items-center gap-2">
+                    我的收藏 <span class="text-red-500">❤️</span>
+</h2>
+<div class="space-y-4" id="fav-list">
+<!-- 动态渲染 -->
+<div class="flex flex-col items-center justify-center py-20 text-gray-400">
+<iconify-icon class="text-6xl mb-2 opacity-20" icon="mdi:heart-broken"></iconify-icon>
+<p>还没有收藏菜品哦</p>
+<button class="mt-4 text-[#FF6B35] font-bold underline" onclick="switchPage('home')">去首页逛逛吧～</button>
+</div>
+</div>
+</section>
+<!-- 盲盒开奖页 -->
+<section class="hidden p-5 flex flex-col items-center justify-center min-h-[600px] space-y-8" id="page-blindbox">
+<h2 class="text-2xl font-black text-[#4A3728]">🎁 每日盲盒开奖</h2>
+<div class="relative w-48 h-48 flex items-center justify-center" id="blindbox-container">
+<!-- 盲盒图形 -->
+<div class="w-32 h-32 bg-[#FF6B35] rounded-2xl shadow-xl flex items-center justify-center text-6xl relative z-10" id="box-visual">
+                        📦
+                        <div class="absolute -top-2 w-36 h-4 bg-[#4A3728] rounded-full opacity-10"></div>
+</div>
+<!-- 装饰光效 -->
+<div class="absolute inset-0 bg-orange-300 rounded-full blur-3xl opacity-20 animate-pulse"></div>
+</div>
+<div class="text-center" id="draw-btn-container">
+<button class="bg-[#FF6B35] text-white px-12 py-4 rounded-full font-black text-lg shadow-lg shadow-orange-200 active:scale-95 transition-all" onclick="drawBlindBox()">
+                        立即开奖
+                    </button>
+<p class="mt-4 text-xs text-gray-400">每人每天仅限一次机会</p>
+</div>
+<!-- 开奖结果 (初始隐藏) -->
+<div class="hidden w-full space-y-6" id="prize-result">
+<div class="bg-white rounded-3xl p-6 shadow-xl border-4 border-[#FF6B35] text-center relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-2 bg-[#FF6B35]"></div>
+<p class="text-[#FF6B35] font-black text-xl mb-4" id="prize-title">🎉 免单券！</p>
+<div class="flex items-center justify-center gap-4 mb-4">
+<span class="text-5xl" id="prize-emoji">🍗</span>
+<div class="text-left">
+<p class="font-bold text-[#4A3728]" id="prize-dish">黄焖鸡米饭</p>
+<p class="text-xs text-gray-400" id="prize-win">一食堂·黄焖鸡窗口</p>
+</div>
+</div>
+<div class="bg-gray-50 rounded-xl p-3 border border-dashed border-gray-200">
+<p class="text-xs text-gray-400 mb-1">今日暗号</p>
+<p class="text-lg font-black tracking-widest text-[#4A3728]" id="prize-code">食光8888</p>
+</div>
+<p class="mt-4 text-[10px] text-gray-400">向食堂窗口出示暗号即可兑换福利</p>
+</div>
+<button class="w-full py-4 text-[#4A3728] font-bold" onclick="switchPage('home')">返回首页</button>
+</div>
+</section>
+<!-- 我的页面 -->
+<section class="hidden space-y-6" id="page-me">
+<div class="bg-[#FF6B35] p-8 pt-12 rounded-b-[40px] text-white">
+<div class="flex items-center gap-4 mb-6">
+<div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-3xl border-4 border-orange-300">
+                            👨‍🚀
+                        </div>
+<div>
+<h2 class="text-xl font-black">食光探险家</h2>
+<p class="text-xs opacity-80">Lv.3 美食达人</p>
+</div>
+</div>
+<div class="bg-white/20 backdrop-blur-md rounded-2xl p-4">
+<div class="flex justify-between items-center mb-2 text-sm font-bold">
+<span>当前积分</span>
+<span id="me-points">1,250</span>
+</div>
+<div class="w-full h-2 bg-white/30 rounded-full overflow-hidden">
+<div class="w-[65%] h-full bg-white rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="px-5 space-y-6">
+<!-- 成就勋章 -->
+<div>
+<h3 class="text-[#4A3728] font-black mb-3">成就勋章</h3>
+<div class="flex justify-between">
+<div class="flex flex-col items-center gap-1 opacity-100">
+<div class="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center text-2xl">🌱</div>
+<span class="text-[10px] text-gray-500">初来乍到</span>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-100">
+<div class="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center text-2xl">🚶</div>
+<span class="text-[10px] text-gray-500">排队达人</span>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-100">
+<div class="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center text-2xl">🏹</div>
+<span class="text-[10px] text-gray-500">美食猎人</span>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-30">
+<div class="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center text-2xl">👑</div>
+<span class="text-[10px] text-gray-500">食神降临</span>
+</div>
+</div>
+</div>
+<!-- 设置列表 -->
+<div class="bg-white rounded-2xl overflow-hidden shadow-sm">
+<div class="p-4 flex justify-between items-center border-b border-gray-50 cursor-pointer active:bg-gray-50" onclick="showDietModal()">
+<div class="flex items-center gap-3">
+<iconify-icon class="text-orange-400" icon="mdi:silverware-variant"></iconify-icon>
+<span class="text-sm font-bold text-[#4A3728]">口味偏好设置</span>
+</div>
+<iconify-icon class="text-gray-300" icon="mdi:chevron-right"></iconify-icon>
+</div>
+<div class="p-4 flex justify-between items-center border-b border-gray-50">
+<div class="flex items-center gap-3">
+<iconify-icon class="text-blue-400" icon="mdi:bell-outline"></iconify-icon>
+<span class="text-sm font-bold text-[#4A3728]">通知设置</span>
+</div>
+<iconify-icon class="text-gray-300" icon="mdi:chevron-right"></iconify-icon>
+</div>
+<div class="p-4 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<iconify-icon class="text-gray-400" icon="mdi:cog-outline"></iconify-icon>
+<span class="text-sm font-bold text-[#4A3728]">通用设置</span>
+</div>
+<iconify-icon class="text-gray-300" icon="mdi:chevron-right"></iconify-icon>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- 底部导航栏 -->
+<nav class="absolute bottom-0 w-full bg-white/90 backdrop-blur-lg border-t border-gray-100 px-6 py-3 pb-8 flex justify-between items-center z-50 safe-bottom">
+<button class="nav-item flex flex-col items-center gap-1 text-[#FF6B35]" onclick="switchPage('home')">
+<iconify-icon class="text-2xl" icon="mdi:home-variant"></iconify-icon>
+<span class="text-[10px] font-bold">首页</span>
+</button>
+<button class="nav-item flex flex-col items-center gap-1 text-gray-400" onclick="switchPage('canteen')">
+<iconify-icon class="text-2xl" icon="mdi:silverware-fork-knife"></iconify-icon>
+<span class="text-[10px] font-bold">食堂</span>
+</button>
+<button class="nav-item flex flex-col items-center gap-1 text-gray-400" onclick="switchPage('fav')">
+<iconify-icon class="text-2xl" icon="mdi:heart"></iconify-icon>
+<span class="text-[10px] font-bold">收藏</span>
+</button>
+<button class="nav-item flex flex-col items-center gap-1 text-gray-400" onclick="switchPage('me')">
+<iconify-icon class="text-2xl" icon="mdi:account"></iconify-icon>
+<span class="text-[10px] font-bold">我的</span>
+</button>
+</nav>
+<!-- 弹窗：热度榜 -->
+<div class="hidden fixed inset-0 bg-black/50 z-[100] flex items-end" id="modal-hotlist">
+<div class="w-full bg-white rounded-t-[40px] p-8 space-y-6 animate-slide-up">
+<div class="flex justify-between items-center">
+<h3 class="text-xl font-black text-[#4A3728]">🏆 今日热度榜</h3>
+<button class="text-gray-400 text-2xl" onclick="closeModal('modal-hotlist')">×</button>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-4">
+<span class="w-6 h-6 bg-[#FF6B35] text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+<span class="flex-1 font-bold">麻辣香锅 (一食堂)</span>
+<span class="text-[#FF6B35] text-xs">🔥 9.8k</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="w-6 h-6 bg-orange-400 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+<span class="flex-1 font-bold">麻辣烫 (美食广场)</span>
+<span class="text-[#FF6B35] text-xs">🔥 8.5k</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="w-6 h-6 bg-orange-300 text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
+<span class="flex-1 font-bold">黄焖鸡米饭 (一食堂)</span>
+<span class="text-[#FF6B35] text-xs">🔥 7.2k</span>
+</div>
+<div class="flex items-center gap-4 text-gray-400">
+<span class="w-6 h-6 bg-gray-200 text-white rounded-full flex items-center justify-center text-xs font-bold">4</span>
+<span class="flex-1 font-bold">螺蛳粉 (二食堂)</span>
+<span class="text-xs">🔥 6.1k</span>
+</div>
+<div class="flex items-center gap-4 text-gray-400">
+<span class="w-6 h-6 bg-gray-200 text-white rounded-full flex items-center justify-center text-xs font-bold">5</span>
+<span class="flex-1 font-bold">牛肉饭 (二食堂)</span>
+<span class="text-xs">🔥 5.9k</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 弹窗：口味偏好 -->
+<div class="hidden fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-6" id="modal-diet">
+<div class="w-full bg-white rounded-[32px] p-8 space-y-6">
+<h3 class="text-xl font-black text-[#4A3728] text-center">口味偏好设置</h3>
+<div class="grid grid-cols-2 gap-3">
+<button class="diet-tag border-2 border-gray-100 rounded-xl py-3 text-sm font-bold text-gray-500 active:border-[#FF6B35] active:text-[#FF6B35]">不吃辣</button>
+<button class="diet-tag border-2 border-gray-100 rounded-xl py-3 text-sm font-bold text-gray-500">不吃香菜</button>
+<button class="diet-tag border-2 border-gray-100 rounded-xl py-3 text-sm font-bold text-gray-500">清真</button>
+<button class="diet-tag border-2 border-gray-100 rounded-xl py-3 text-sm font-bold text-gray-500">素食</button>
+</div>
+<button class="w-full bg-[#FF6B35] text-white py-4 rounded-full font-black" onclick="closeModal('modal-diet')">保存设置</button>
+</div>
+</div>
+<!-- 提示：积分反馈 -->
+<div class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/80 text-white px-6 py-3 rounded-full font-bold z-[200] animate-bounce" id="toast-points">
+            +1 积分 🌟
+        </div>
+</div>
+<script>
+        // --- 数据池 ---
+        const foodData = [
+            {name:"麻辣香锅", window:"一食堂·香锅窗口", price:"12元", calories:"🔥 中卡", likes:128, emoji:"🌶️"},
+            {name:"牛肉饭", window:"二食堂·牛肉饭窗口", price:"15元", calories:"⚡ 高能", likes:96, emoji:"🥩"},
+            {name:"番茄鸡蛋面", window:"美食广场·面食窗口", price:"8元", calories:"🔥 低卡", likes:84, emoji:"🍜"},
+            {name:"黄焖鸡米饭", window:"一食堂·黄焖鸡窗口", price:"13元", calories:"⚡ 高能", likes:112, emoji:"🍗"},
+            {name:"酸菜鱼", window:"二食堂·鱼鲜窗口", price:"16元", calories:"🔥 低卡", likes:76, emoji:"🐟"},
+            {name:"麻辣烫", window:"美食广场·麻辣烫窗口", price:"10元起", calories:"🔥 中卡", likes:145, emoji:"🥘"},
+            {name:"烤肉拌饭", window:"一食堂·拌饭窗口", price:"14元", calories:"⚡ 高能", likes:89, emoji:"🍚"},
+            {name:"螺蛳粉", window:"二食堂·粉面窗口", price:"9元", calories:"🔥 中卡", likes:103, emoji:"🍲"},
+            {name:"煎饼果子", window:"美食广场·煎饼窗口", price:"6元", calories:"🔥 中卡", likes:67, emoji:"🫓"},
+            {name:"糖醋里脊饭", window:"一食堂·特色窗口", price:"13元", calories:"⚡ 高能", likes:91, emoji:"🍖"},
+            {name:"牛肉面", window:"二食堂·面食窗口", price:"11元", calories:"🔥 中卡", likes:88, emoji:"🍜"}
+        ];
+
+        const canteenWindows = {
+            0: [
+                {name: "香锅窗口", queue: 8, time: 10},
+                {name: "黄焖鸡窗口", queue: 5, time: 6},
+                {name: "拌饭窗口", queue: 3, time: 4},
+                {name: "特色窗口", queue: 12, time: 15}
+            ],
+            1: [
+                {name: "牛肉饭窗口", queue: 6, time: 8},
+                {name: "鱼鲜窗口", queue: 4, time: 5},
+                {name: "粉面窗口", queue: 10, time: 12}
+            ],
+            2: [
+                {name: "面食窗口", queue: 7, time: 9},
+                {name: "麻辣烫窗口", queue: 15, time: 18},
+                {name: "煎饼窗口", queue: 2, time: 3}
+            ]
+        };
+
+        const prizes = [
+            "🎉 免单券！本次用餐免费！",
+            "🎉 第二份半价券",
+            "🎉 加菜券（免费加一份小菜）",
+            "🎉 5元优惠券",
+            "🎉 谢谢参与，下次好运～"
+        ];
+
+        // --- 状态管理 ---
+        let state = {
+            favorites: JSON.parse(localStorage.getItem('favs')) || [],
+            points: parseInt(localStorage.getItem('points')) || 1250,
+            currentCanteen: 0
+        };
+
+        // --- 页面切换逻辑 ---
+        function switchPage(pageId) {
+            const pages = ['home', 'canteen', 'fav', 'me', 'blindbox'];
+            pages.forEach(p => {
+                document.getElementById(`page-${p}`).classList.add('hidden');
+            });
+            document.getElementById(`page-${pageId}`).classList.remove('hidden');
+
+            // 导航高亮
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach((item, index) => {
+                if (['home', 'canteen', 'fav', 'me'][index] === pageId) {
+                    item.classList.add('text-[#FF6B35]');
+                    item.classList.remove('text-gray-400');
+                } else {
+                    item.classList.remove('text-[#FF6B35]');
+                    item.classList.add('text-gray-400');
+                }
+            });
+
+            // 头部标题切换
+            const titles = { home: '食光盲盒', canteen: '食堂大厅', fav: '我的收藏', me: '个人中心', blindbox: '幸运盲盒' };
+            document.querySelector('#app-header h1').innerText = titles[pageId] || '食光盲盒';
+
+            if(pageId === 'fav') renderFavs();
+            if(pageId === 'canteen') renderWindows();
+        }
+
+        // --- 首页交互：摇一摇 ---
+        function triggerShake() {
+            const btn = document.getElementById('shake-btn');
+            const result = document.getElementById('shake-result');
+            
+            btn.classList.add('animate-shake');
+            if (navigator.vibrate) navigator.vibrate(200);
+
+            setTimeout(() => {
+                btn.classList.remove('animate-shake');
+                const randomDish = foodData[Math.floor(Math.random() * foodData.length)];
+                
+                document.getElementById('res-emoji').innerText = randomDish.emoji;
+                document.getElementById('res-name').innerText = randomDish.name;
+                document.getElementById('res-window').innerText = randomDish.window;
+                document.getElementById('res-price').innerText = randomDish.price;
+                document.getElementById('res-tag').innerText = randomDish.calories;
+                
+                result.classList.remove('hidden');
+                result.classList.add('animate-bounce');
+                setTimeout(() => result.classList.remove('animate-bounce'), 1000);
+            }, 800);
+        }
+
+        // --- 首页交互：卡片滑动(真正可拖动的3张卡片) ---
+        const hotDishes = [
+            {name:"麻辣香锅", window:"一食堂·香锅窗口", likes:128, emoji:"🌶️"},
+            {name:"黄焖鸡米饭", window:"一食堂·黄焖鸡窗口", likes:112, emoji:"🍗"},
+            {name:"牛肉面", window:"二食堂·面食窗口", likes:88, emoji:"🍜"}
+        ];
+
+        let hotIndex = 0;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let dragOffsetX = 0;
+        let isDragging = false;
+        let isAnimating = false;
+        const swipeTrack = document.getElementById('swipe-track');
+        const indicatorDots = document.querySelectorAll('#indicator-dots div');
+
+        function renderHotCards() {
+            swipeTrack.innerHTML = hotDishes.map((d, i) => `
+                <div class="hot-card min-w-full h-full flex items-center justify-center px-2 ${i === hotIndex ? 'z-10' : ''}" data-index="${i}">
+                    <div class="w-full h-[210px] bg-white rounded-3xl shadow-md p-5 flex flex-col items-center justify-between border border-gray-50">
+                        <div class="text-6xl">${d.emoji}</div>
+                        <div class="text-center">
+                            <h3 class="font-bold text-[#4A3728] text-lg">${d.name}</h3>
+                            <p class="text-xs text-gray-400">${d.window}</p>
+                        </div>
+                        <div class="flex items-center gap-1 text-[#FF6B35]">
+                            <iconify-icon icon="mdi:heart"></iconify-icon>
+                            <span class="text-xs font-bold">${d.likes}人想吃</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            // 用translate将当前卡片移到可见区域
+            const cardWidth = swipeTrack.offsetWidth;
+            swipeTrack.style.transform = `translateX(${-hotIndex * cardWidth}px)`;
+            swipeTrack.style.transition = 'none';
+        }
+
+        function updateIndicator() {
+            indicatorDots.forEach((dot, i) => {
+                if(i === hotIndex) {
+                    dot.classList.add('bg-[#FF6B35]');
+                    dot.classList.remove('bg-gray-300');
+                    dot.style.width = '1rem';
+                } else {
+                    dot.classList.remove('bg-[#FF6B35]');
+                    dot.classList.add('bg-gray-300');
+                    dot.style.width = '0.375rem';
+                }
+            });
+        }
+
+        function goToCard(index, animated = true) {
+            if(isAnimating) return;
+            if(index < 0) index = 0;
+            if(index >= hotDishes.length) index = hotDishes.length - 1;
+            if(index === hotIndex) return;
+            
+            isAnimating = true;
+            hotIndex = index;
+            const cardWidth = swipeTrack.offsetWidth;
+            
+            if(animated) {
+                swipeTrack.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            } else {
+                swipeTrack.style.transition = 'none';
+            }
+            swipeTrack.style.transform = `translateX(${-hotIndex * cardWidth}px)`;
+            updateIndicator();
+            
+            setTimeout(() => {
+                isAnimating = false;
+            }, 300);
+        }
+
+        // 触摸事件
+        const swipeContainer = document.getElementById('swipe-container');
+        
+        swipeContainer.addEventListener('touchstart', (e) => {
+            if(isAnimating) return;
+            const touch = e.touches[0];
+            dragStartX = touch.clientX;
+            dragStartY = touch.clientY;
+            dragOffsetX = 0;
+            isDragging = true;
+            // 取消过渡以便手指跟随
+            swipeTrack.style.transition = 'none';
+        }, { passive: true });
+
+        swipeContainer.addEventListener('touchmove', (e) => {
+            if(!isDragging || isAnimating) return;
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - dragStartX;
+            const deltaY = touch.clientY - dragStartY;
+            
+            // 如果垂直滑动大于水平，不处理（让页面滚动）
+            if(Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 20) {
+                isDragging = false;
+                return;
+            }
+            
+            e.preventDefault();
+            dragOffsetX = deltaX;
+            const cardWidth = swipeContainer.offsetWidth;
+            const currentOffset = -hotIndex * cardWidth + deltaX;
+            swipeTrack.style.transform = `translateX(${currentOffset}px)`;
+        }, { passive: false });
+
+        swipeContainer.addEventListener('touchend', (e) => {
+            if(!isDragging) return;
+            isDragging = false;
+            
+            const threshold = 80; // 滑动80px触发切换
+            if(dragOffsetX > threshold && hotIndex > 0) {
+                // 右滑 → 上一张
+                // 如果是第一张(麻辣香锅)，右滑收藏
+                if(hotIndex === 0) {
+                    // 右滑麻辣香锅 → 收藏
+                    const targetDish = hotDishes[0];
+                    addFavorite(targetDish);
+                    showToast('❤️ 已收藏 ' + targetDish.name);
+                    goToCard(0, true);
+                    setTimeout(() => {
+                        switchPage('fav');
+                    }, 500);
+                } else {
+                    goToCard(hotIndex - 1, true);
+                }
+            } else if(dragOffsetX < -threshold && hotIndex < hotDishes.length - 1) {
+                // 左滑 → 下一张
+                goToCard(hotIndex + 1, true);
+            } else {
+                // 回弹到当前卡片
+                goToCard(hotIndex, true);
+            }
+        }, { passive: true });
+
+        // 初始化渲染
+        renderHotCards();
+        updateIndicator();
+
+        // --- 食堂页交互 ---
+        function switchCanteen(index) {
+            state.currentCanteen = index;
+            const tabs = document.querySelectorAll('.canteen-tab');
+            tabs.forEach((t, i) => {
+                if(i === index) {
+                    t.classList.add('bg-[#FF6B35]', 'text-white');
+                    t.classList.remove('text-gray-500');
+                } else {
+                    t.classList.remove('bg-[#FF6B35]', 'text-white');
+                    t.classList.add('text-gray-500');
+                }
+            });
+            renderWindows();
+        }
+
+        function renderWindows() {
+            const list = document.getElementById('window-list');
+            const data = canteenWindows[state.currentCanteen];
+            list.innerHTML = data.map((win, i) => `
+                <div class="bg-white rounded-2xl p-4 shadow-sm flex justify-between items-center border border-gray-50">
+                    <div>
+                        <h4 class="font-bold text-[#4A3728]">${win.name}</h4>
+                        <div class="flex gap-3 mt-1">
+                            <span class="text-[10px] text-gray-400">排队: <b class="text-[#FF6B35]">${win.queue}人</b></span>
+                            <span class="text-[10px] text-gray-400">预计: <b class="text-[#4A3728]">${win.time}分钟</b></span>
+                        </div>
+                    </div>
+                    <button onclick="reportQueue(${i})" class="bg-orange-50 text-[#FF6B35] px-4 py-2 rounded-xl text-xs font-black active:bg-[#FF6B35] active:text-white transition-colors">
+                        我在排队
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function reportQueue(idx) {
+            const count = prompt("当前排队人数？(1-30)", "5");
+            if(count) {
+                showToastPoints();
+                state.points += 1;
+                document.getElementById('me-points').innerText = state.points.toLocaleString();
+                localStorage.setItem('points', state.points);
+            }
+        }
+
+        // --- 盲盒开奖交互 ---
+        function drawBlindBox() {
+            const box = document.getElementById('box-visual');
+            const btnCont = document.getElementById('draw-btn-container');
+            const result = document.getElementById('prize-result');
+            
+            box.classList.add('animate-box');
+            btnCont.classList.add('opacity-0', 'pointer-events-none');
+
+            setTimeout(() => {
+                box.classList.remove('animate-box');
+                box.classList.add('hidden');
+                
+                const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
+                const randomDish = foodData[Math.floor(Math.random() * foodData.length)];
+                const randomCode = "食光" + Math.floor(1000 + Math.random() * 9000);
+
+                document.getElementById('prize-title').innerText = randomPrize;
+                document.getElementById('prize-emoji').innerText = randomDish.emoji;
+                document.getElementById('prize-dish').innerText = randomDish.name;
+                document.getElementById('prize-win').innerText = randomDish.window;
+                document.getElementById('prize-code').innerText = randomCode;
+
+                result.classList.remove('hidden');
+            }, 2500);
+        }
+
+        // --- 收藏功能 ---
+        function addFavorite(dish) {
+            if(!state.favorites.find(f => f.name === dish.name)) {
+                state.favorites.push({...dish, time: new Date().toLocaleDateString()});
+                localStorage.setItem('favs', JSON.stringify(state.favorites));
+            }
+        }
+
+        function removeFavorite(index) {
+            let favorites = JSON.parse(localStorage.getItem('favs')) || [];
+            favorites.splice(index, 1);
+            localStorage.setItem('favs', JSON.stringify(favorites));
+            state.favorites = favorites;
+            renderFavs();
+            showToast('已取消收藏');
+        }
+
+        function renderFavs() {
+            const list = document.getElementById('fav-list');
+            const favorites = JSON.parse(localStorage.getItem('favs')) || [];
+            state.favorites = favorites;
+            
+            if(favorites.length === 0) {
+                list.innerHTML = `<div class="flex flex-col items-center justify-center py-20 text-gray-400">
+                    <iconify-icon icon="mdi:heart-broken" class="text-6xl mb-2 opacity-20"></iconify-icon>
+                    <p class="text-[#4A3728] font-bold mb-2">还没有收藏菜品哦</p>
+                    <p class="text-xs text-gray-400 mb-4">去首页摇一摇吧～</p>
+                    <div class="text-6xl mb-4">🎲</div>
+                    <button onclick="switchPage('home')" class="mt-2 bg-[#FF6B35] text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-md">去首页看看</button>
+                </div>`;
+                return;
+            }
+            list.innerHTML = favorites.map((f, idx) => `
+                <div class="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 border border-gray-50">
+                    <div class="text-4xl w-12 text-center">${f.emoji || '🍱'}</div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-bold text-[#4A3728]">${f.name}</h4>
+                        <p class="text-xs text-gray-400">${f.window || ''} · ${f.time || '刚刚收藏'}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="triggerShake()" class="bg-[#FF6B35] text-white px-3 py-1.5 rounded-lg text-[10px] font-bold whitespace-nowrap">再来一份</button>
+                        <button onclick="removeFavorite(${idx})" class="text-red-400 px-2 py-1.5 rounded-lg text-sm hover:bg-red-50 transition-colors">❤️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- 通用弹窗/提示 ---
+        function showHotList() { document.getElementById('modal-hotlist').classList.remove('hidden'); }
+        function showDietModal() { document.getElementById('modal-diet').classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        
+        function showToastPoints() {
+            const toast = document.getElementById('toast-points');
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 1500);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast-points');
+            toast.innerHTML = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 1500);
+        }
+
+        // 初始化
+        window.onload = () => {
+            renderWindows();
+        };
+    </script>
+</body>
+</html>
